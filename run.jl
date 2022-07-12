@@ -3,18 +3,22 @@ using PrettyTables
 
 julia_dir = "julia"
 
-# Download the specific branch of Julia, here 1.7.3 with incremental compilation of sysimage
-if !ispath(julia_dir)
-    run(`git clone --depth 1 --branch pv/kf/fastsysimg-1.7-use-precompile https://github.com/petvana/julia`)
+julia_local = "/home/petr/software/julia/julia-petvana-fastsysimg-master"
+if ispath(julia_local)
+    julia_dir = julia_local
+else
+    # Download the specific branch of Julia, here 1.7.3 with incremental compilation of sysimage
+    if !ispath(julia_dir)
+        run(`git clone --depth 1 --branch pv/kf/fastsysimg-1.7-use-precompile https://github.com/petvana/julia`)
+    end
 end
 
-#if !ispath("$julia_dir/julia")
-    #run(`make -j4 -C julia`)
-#end
-run(`make -j4 -C julia`)
+@show julia_dir
 
-julia_cmd = "julia/usr/bin/julia"
-julia_sysimage = "julia/usr/lib/julia/sys.so"
+run(`make -j4 -C $julia_dir`)
+
+julia_cmd = "$julia_dir/usr/bin/julia"
+julia_sysimage = "$julia_dir/usr/lib/julia/sys.so"
 
 chained_dir = "chained"
 
@@ -32,7 +36,7 @@ function compile(file)
     t_compile = time()
     mkpath(chained_dir)
     cd(chained_dir)
-    cp("../julia/usr/lib/julia/sys-o.a", "sys-o.a", force=true)
+    cp("$julia_dir/usr/lib/julia/sys-o.a", "sys-o.a", force=true)
     run(`ar x sys-o.a`)
     run(`rm data.o`)
     run(`mv text.o text-old.o`)
@@ -49,7 +53,7 @@ end;
 include("precompile.jl")
     """
 
-    run(`$julia_cmd --sysimage-native-code=chained --sysimage=julia/usr/lib/julia/sys.so --output-o chained/chained.o.a -e $source_txt`)
+    run(`$julia_cmd --sysimage-native-code=chained --sysimage=$julia_dir/usr/lib/julia/sys.so --output-o chained/chained.o.a -e $source_txt`)
 
     cd(chained_dir)
     run(`ar x chained.o.a`) # Extract new sysimage files
