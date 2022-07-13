@@ -74,6 +74,8 @@ function compile_chained(source_dir)
     println("Runned normal in $t_nload")
     t_nwork = measure("$source_dir/work.jl")
     println("Runned work in $t_nwork")
+    t_nwork = measure("$source_dir/work.jl")
+    println("Runned work in $t_nwork")
 
     # Compile the chained sysimage
     run(`rm -f statements.txt`)
