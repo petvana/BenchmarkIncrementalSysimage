@@ -66,7 +66,7 @@ include("precompile.jl")
 
     cd(chained_dir)
     run(`$ar x chained.o.a`) # Extract new sysimage files
-    run(`$clang -shared -o chained.so text.o data.o text-old.o`) # --allow-multiple-definition 
+    run(`ld --allow-multiple-definition -shared -o chained.so text.o data.o text-old.o`) # --allow-multiple-definition 
     cd("..")
 
     return time() - t_compile
