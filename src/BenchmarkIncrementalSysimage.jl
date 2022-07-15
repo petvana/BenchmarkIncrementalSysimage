@@ -12,7 +12,7 @@ if ispath(julia_local)
 else
     # Download the specific branch of Julia, here 1.7.3 with incremental compilation of sysimage
     if !ispath(julia_dir)
-        run(`git clone --depth 1 --branch pv/kf/fastsysimg https://github.com/petvana/julia`)
+        run(`git clone --depth 1 --branch pv/fastsysimg https://github.com/petvana/julia`)
     end
 end
 
