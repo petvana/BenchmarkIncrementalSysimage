@@ -21,12 +21,12 @@ function compile_chained(source_dir)
     t_nwork = measure("$source_dir/work.jl")
     println("Runned work in $t_nwork")
 
-    t_compile = t_empty = t_load = t_work = NaN
+    t_compile = t_compile2 = t_empty = t_load = t_work = NaN
 
     # Compile the chained sysimage
     run(`rm -f statements.txt`)
-    t_compile_tmp = compile("$source_dir/load.jl")
-    println("Compiled in $t_compile_tmp")
+    t_compile = compile("$source_dir/load.jl")
+    println("Compiled in $t_compile")
 
     # measure(nothing, true)
     # println("Run empty in $t_empty")
@@ -37,10 +37,12 @@ function compile_chained(source_dir)
     t_work_tmp = measure("$source_dir/work.jl", true, true)
     println("Run work in $t_work_tmp")
 
-    try
+    #try
         # Compile the chained sysimage
-        t_compile = compile("$source_dir/load.jl")
-        println("Compiled in $t_compile")
+        cp("chained/chained.so", "chained/chained1.so", force=true)
+
+        t_compile2 = compile(nothing; original_sysimage = "chained/chained1.so", generated_sysimage = "chained.so")
+        println("Compiled2 in $t_compile2")
     
         t_empty = measure(nothing, true)
         println("Run empty in $t_empty")
@@ -50,8 +52,8 @@ function compile_chained(source_dir)
     
         t_work = measure("$source_dir/work.jl", true)
         println("Run work in $t_work")
-    catch
-    end
+    #catch
+    #end
 
     push!(df, (
         library = splitpath(source_dir)[end],
@@ -59,6 +61,7 @@ function compile_chained(source_dir)
         N_load = t_nload,
         N_work = t_nwork,
         Compile = t_compile,
+        Compile2 = t_compile2,
         S_empty = t_empty, 
         S_load = t_load,
         S_work = t_work,
@@ -70,7 +73,7 @@ delete!(examples, "GLMakie")
 
 #examples = ["OhMyREPL"]
 examples = ["OhMyREPL", "DataFrames", "Plots", "GLMakie"]
-examples = ["OhMyREPL", "DataFrames"]
+#examples = ["OhMyREPL", "DataFrames"]
 
 for lib in examples
     println(" --- $lib --- ")
